@@ -21,4 +21,4 @@ COPY . .
 ENV PORT=8080
 
 # Inicia o servidor uvicorn liberando o acesso externo (0.0.0.0) na porta do Google
-CMD ["sh", "-c", "uvicorn api_castel:app --host 0.0.0.0 --port ${PORT}"]
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT}"]
