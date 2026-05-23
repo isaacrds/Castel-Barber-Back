@@ -1,0 +1,24 @@
+# Segurança (NUNCA envie isso para o repositório)
+.env
+castel-barber-admin.json
+
+# Ambientes virtuais
+venv/
+.venv/
+env/
+
+# Cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Configurações de IDE
+.vscode/
+.idea/
+
+# Logs e sistema operacional
+*.log
+.DS_Store
+Thumbs.db
