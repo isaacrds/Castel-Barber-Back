@@ -155,9 +155,9 @@ async def verificar_lembretes():
 
         # Configuração dos intervalos de tempo e suas respectivas chaves de controle no Firestore
         intervalos = [
-            {"minutos": 20, "campo_banco": "lembrete_1h_enviado", "label": "20 minutos"}
-            #{"minutos": 30, "campo_banco": "lembrete_30m_enviado", "label": "30 minutos"},
-            #{"minutos": 5, "campo_banco": "lembrete_5m_enviado", "label": "5 minutos"}
+            {"minutos": 60, "campo_banco": "lembrete_1h_enviado", "label": "1 hora"},
+            {"minutos": 30, "campo_banco": "lembrete_30m_enviado", "label": "30 minutos"}
+            # {"minutos": 5, "campo_banco": "lembrete_5m_enviado", "label": "5 minutos"}
         ]
 
         enviados = 0
@@ -165,12 +165,12 @@ async def verificar_lembretes():
 
         # Usamos httpx para fazer a chamada para a sua API principal Vortix
         async with httpx.AsyncClient() as client:
-            
+
             # Varre cada um dos tempos configurados
             for inter in intervalos:
                 # Soma o tempo necessário para descobrir o alvo do disparo
                 alvo = agora + timedelta(minutes=inter["minutos"])
-                
+
                 data_alvo = alvo.strftime("%Y-%m-%d")  # Ex: 2026-05-23
                 horario_alvo = alvo.strftime("%H:%M")  # Ex: 14:30
                 campo_controle = inter["campo_banco"]
@@ -220,6 +220,9 @@ async def verificar_lembretes():
                         )
                         continue
 
+                    nome_servico = ag.get("nomeServico", "serviço agendado")
+                    nome_profissional = ag.get("nomeBarbeiro", "nosso profissional")
+                    
                     # 4. Prepara o disparo para o Vortix Endpoints
                     vortix_url = "https://vortix-endpoints-298894543925.us-central1.run.app/api/v1/dispatch"
                     headers = {
@@ -232,18 +235,25 @@ async def verificar_lembretes():
                         "phone": telefone,
                         "type": "template",
                         "content": {
-                            "name": "primeiro_acesso_castel_barber",
-                            "language": {"code": "en"},
+                            "name": "alerta_de_agendamento_proximo",
+                            "language": {"code": "pt_BR"},
                             "components": [
                                 {
                                     "type": "body",
-                                    "parameters": [{"type": "text", "text": nome}],
+                                    "parameters": [
+                                        {"type": "text", "text": nome},
+                                        {"type": "text", "text": inter["label"]},
+                                        {"type": "text", "text": nome_servico},
+                                        {"type": "text", "text": nome_profissional},
+                                    ],
                                 }
                             ],
                         },
                     }
 
-                    print(f"🚀 Disparando lembrete de {inter['label']} via Vortix para {nome} ({telefone})...")
+                    print(
+                        f"🚀 Disparando lembrete de {inter['label']} via Vortix para {nome} ({telefone})..."
+                    )
 
                     # 5. Executa a requisição HTTP POST para o disparo
                     res = await client.post(vortix_url, headers=headers, json=payload)
